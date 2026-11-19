@@ -1993,7 +1993,15 @@ __txn_end(txn, is_commit)
 	if (txn->parent != NULL) {
 		ptd = txn->parent->td;
 		SH_TAILQ_REMOVE(&ptd->kids, td, klinks, __txn_detail);
-	} else if ((mvcc_mtx = td->mvcc_mtx) != MUTEX_INVALID) {
+	} else if ((mvcc_mtx = td->mvcc_mtx) != MUTEX_INVALID ||
+	    td->mvcc_ref != 0) {
+		/*
+		 * __mutex_alloc returns MUTEX_INVALID for a private
+		 * environment without DB_THREAD, but page versions that point
+		 * at td still count in td->mvcc_ref.  td must stay on
+		 * region->mvcc_txn until the last of those page versions is
+		 * removed.
+		 */
 		MUTEX_LOCK(env, mvcc_mtx);
 		if (td->mvcc_ref != 0) {
 			SH_TAILQ_INSERT_HEAD(&region->mvcc_txn,

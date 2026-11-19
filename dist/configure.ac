@@ -273,9 +273,13 @@ Install the liburing development files, or configure --without-uring.])
 fi
 
 # POSIX aio: aio_read/aio_write may live in libc (BSD/macOS) or librt
-# (Solaris/illumos, glibc).  Record the library so os_aio_posix links.
+# (Solaris/illumos, NetBSD, glibc before 2.34).  The library goes into
+# LIBSO_LIBS, from which LIBS is set again below, so os_aio_posix links.
 AC_CHECK_HEADER(aio.h, [
 	AC_SEARCH_LIBS(aio_read, [rt aio], [
+		if test "$ac_cv_search_aio_read" != "none required"; then
+			LIBSO_LIBS="$LIBSO_LIBS $ac_cv_search_aio_read"
+		fi
 		AC_DEFINE(HAVE_AIO_POSIX,
 		    1, [Define to 1 to use the POSIX aio backend.])])])
 

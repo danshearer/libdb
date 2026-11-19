@@ -106,8 +106,8 @@ typedef struct __db_aio_backend {
  * __ADD(__db_aio_context), so putting the latch here leaves the signature
  * byte-identical to master's.
  *
- * Caveat, deliberately recorded: dist/s_sig scans ../src/dbinc/*.h, which
- * includes this header, so a REGEN would add __ADD(__db_aio_context) (along
+ * Caveat, deliberately recorded: dist/s_sig scans all ../src/dbinc headers,
+ * this one among them, so a REGEN would add __ADD(__db_aio_context) (along
  * with 6 other structs env_sig.c is already stale for on master -- __cq_part,
  * __bam_rsnap, __memp_pgw, __memp_aio_w, __db_aio_op, __db_aio_backend).
  * env_sig.c is a checked-in generated file that CI does not regenerate (only
